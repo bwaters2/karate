@@ -39,11 +39,9 @@ import org.apache.http.HttpResponse;
  * @author pthomas3
  */
 public class LoggingUtils {
-    
     private LoggingUtils() {
         // only static methods
     }
-    
     private static Collection<String> sortKeys(Header[] headers) {
         Set<String> keys = new TreeSet<>();
         for (Header header : headers) {
@@ -63,26 +61,43 @@ public class LoggingUtils {
             }
             sb.append(list);
         }
-        sb.append('\n');       
+        sb.append('\n');
     }
-    
-    public static void logHeaders(StringBuilder sb, int id, char prefix, org.apache.http.HttpRequest request, HttpRequest actual) {
+
+    private static void logMaskedHeaderLine(StringBuilder sb, int id, char prefix, String key, Header[] headers) {
+        sb.append(id).append(' ').append(prefix).append(' ').append(key).append(": ");
+        if (headers.length == 1) {
+            sb.append("* masked-by-karate *");
+        } else {
+            List<String> list = new ArrayList(headers.length);
+            for (Header header : headers) {
+                list.add("* masked-by-karate *");
+            }
+            sb.append(list);
+        }
+        sb.append('\n');
+    }
+
+    public static void logHeaders(StringBuilder sb, int id, char prefix, org.apache.http.HttpRequest request, HttpRequest actual, List<String> headerValuesToMask) {
         for (String key : sortKeys(request.getAllHeaders())) {
             Header[] headers = request.getHeaders(key);
-            logHeaderLine(sb, id, prefix, key, headers);
+            if (headerValuesToMask.contains(key)) {
+                logMaskedHeaderLine(sb, id, prefix, key, headers);
+            } else {
+                logHeaderLine(sb, id, prefix, key, headers);
+            }
             for (Header header : headers) {
                 actual.addHeader(header.getName(), header.getValue());
             }
         }
     }
-    
     public static void logHeaders(StringBuilder sb, int id, char prefix, HttpResponse response) {
         for (String key : sortKeys(response.getAllHeaders())) {
             Header[] headers = response.getHeaders(key);
             logHeaderLine(sb, id, prefix, key, headers);
         }
-    } 
-    
+    }
+
     public static boolean isPrintable(HttpEntity entity) {
         if (entity == null) {
             return false;
@@ -90,5 +105,4 @@ public class LoggingUtils {
         return entity.getContentType() != null
                     && HttpUtils.isPrintable(entity.getContentType().getValue());
     }
-    
 }

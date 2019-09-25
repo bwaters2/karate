@@ -61,7 +61,7 @@ public class RequestLoggingInterceptor implements HttpRequestInterceptor {
         actual.setMethod(method);
         StringBuilder sb = new StringBuilder();
         sb.append("request:\n").append(id).append(" > ").append(method).append(' ').append(uri).append('\n');
-        LoggingUtils.logHeaders(sb, id, '>', request, actual);
+        LoggingUtils.logHeaders(sb, id, '>', request, actual, context.getConfig().getRequestHeadersToMask());
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
             HttpEntity entity = entityRequest.getEntity();

@@ -25,6 +25,7 @@ package com.intuit.karate;
 
 import com.intuit.karate.http.HttpClient;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -55,6 +56,7 @@ public class Config {
     private String proxyUsername;
     private String proxyPassword;
     private List<String> nonProxyHosts;
+    private List<String>  maskRequestHeaders = new ArrayList<String>();
     private ScriptValue headers = ScriptValue.NULL;
     private ScriptValue cookies = ScriptValue.NULL;
     private ScriptValue responseHeaders = ScriptValue.NULL;
@@ -93,6 +95,9 @@ public class Config {
         switch (key) {
             case "headers":
                 headers = value;
+                return false;
+            case "maskRequestHeaders":
+                maskRequestHeaders = value.getAsList();
                 return false;
             case "cookies":
                 cookies = value;
@@ -329,6 +334,8 @@ public class Config {
     public ScriptValue getHeaders() {
         return headers;
     }
+
+    public List<String> getRequestHeadersToMask(){return maskRequestHeaders;}
 
     public ScriptValue getCookies() {
         return cookies;
